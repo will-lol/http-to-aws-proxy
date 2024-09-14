@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/k0kubun/pp/v3"
 )
 
 type LambdaHandler struct {
@@ -40,7 +40,7 @@ func (h *LambdaHandler) RequestToEvent(r *http.Request) (*events.LambdaFunctionU
 	}
 
 	for k, v := range r.Header {
-		out.Headers[k] = v[0]
+		out.Headers[strings.ToLower(k)] = v[0]
 	}
 
 	query := r.URL.Query()
@@ -52,9 +52,10 @@ func (h *LambdaHandler) RequestToEvent(r *http.Request) (*events.LambdaFunctionU
 	if err != nil {
 		return nil, err
 	}
-	out.Body = string(body)
-
-	pp.Println(out)
+	if len(body) > 0 {
+		out.Body = string(body)
+		out.IsBase64Encoded = false
+	}
 
 	return &out, nil
 }
