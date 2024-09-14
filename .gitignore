@@ -4,6 +4,7 @@
 # Dev tools
 .direnv
 result
+http-to-aws-proxy
 
 # Binaries for programs and plugins
 *.exe
