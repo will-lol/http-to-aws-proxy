@@ -15,6 +15,21 @@
       forEachSystem = nixpkgs.lib.genAttrs (import systems);
     in
     {
+      packages = forEachSystem (
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+          };
+        in
+        {
+          default = pkgs.buildGoModule {
+            name = "http-to-aws-proxy";
+            src = ./.;
+            vendorHash = "sha256-RSY9YGW1Z4ymUEHJ3wne4BLz9t8eJrq98zzq7yl+AZs=";
+          };
+        }
+      );
       devShells = forEachSystem (
         system:
         let
