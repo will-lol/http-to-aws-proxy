@@ -67,20 +67,33 @@ func (h *LambdaHandler) HandlerFunc(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	json, err := json.Marshal(event)
+	proxyRequest, err := json.Marshal(event)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
 		return
 	}
-	resp, err := http.Post(h.lambdaEndpoint, "application/json", bytes.NewBuffer(json))
+	resp, err := http.Post(h.lambdaEndpoint, "application/json", bytes.NewBuffer(proxyRequest))
 	if err != nil {
 		w.WriteHeader(resp.StatusCode)
 		w.Write([]byte(err.Error()))
 		return
 	}
-	w.WriteHeader(resp.StatusCode)
-	respBody, err := io.ReadAll(resp.Body)
 
-	w.Write(respBody)
+	respBody, err := io.ReadAll(resp.Body)
+	var proxyResponse events.LambdaFunctionURLResponse
+	err = json.Unmarshal(respBody, &proxyResponse)
+	if err != nil {
+		w.WriteHeader(resp.StatusCode)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	for _, v := range proxyResponse.Cookies {
+		w.Header().Add("Set-Cookie", v)
+	}
+	for k, v := range proxyResponse.Headers {
+		w.Header().Add(k, v)
+	}
+	w.WriteHeader(proxyResponse.StatusCode)
+	w.Write([]byte(proxyResponse.Body))
 }
