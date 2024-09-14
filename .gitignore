@@ -3,6 +3,7 @@
 #
 # Dev tools
 .direnv
+result
 
 # Binaries for programs and plugins
 *.exe
