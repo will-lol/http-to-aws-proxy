@@ -26,7 +26,7 @@
           default = pkgs.buildGoModule {
             name = "http-to-aws-proxy";
             src = ./.;
-            vendorHash = "sha256-RSY9YGW1Z4ymUEHJ3wne4BLz9t8eJrq98zzq7yl+AZs=";
+            vendorHash = "sha256-mU4v2uZGOQMltpDEKJ0yKUwM1LLp5meQuJVzgMOF9Gk=";
           };
         }
       );
