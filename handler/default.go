@@ -26,16 +26,35 @@ func (h *LambdaHandler) RequestToEvent(r *http.Request) (*events.LambdaFunctionU
 	// will copy the base event
 	out := h.baseEvent
 
-	pp.Println(r.URL.RawPath)
-	pp.Println(r.URL.RawQuery)
-	pp.Println(r.Cookies())
-	pp.Println(r.Header)
-	pp.Println(r.URL.Query())
+	if r.URL.RawPath != "" {
+		out.RawPath = r.URL.RawPath
+	}
+
+	if r.URL.RawQuery != "" {
+		out.RawQueryString = r.URL.RawQuery
+	}
+
+	cookies := r.Cookies()
+	for _, cookie := range cookies {
+		out.Cookies = append(out.Cookies, cookie.String())
+	}
+
+	for k, v := range r.Header {
+		out.Headers[k] = v[0]
+	}
+
+	query := r.URL.Query()
+	for k, v := range query {
+		out.QueryStringParameters[k] = v[0]
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
 	}
-	pp.Println(body)
+	out.Body = string(body)
+
+	pp.Println(out)
 
 	return &out, nil
 }
